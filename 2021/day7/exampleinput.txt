@@ -1,1 +1,1 @@
-Not yet copied from https://adventofcode.com/2021/day/$($param1)
+16,1,2,0,4,2,7,1,2,14

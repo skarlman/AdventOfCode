@@ -13,6 +13,33 @@ valid_digits[8] = [1, 2, 3, 4, 5, 6, 7]
 valid_digits[9] = [1, 2, 3, 4, 6, 7]
 
 
+def brute_it(selection, maps, input):
+    for single_input in input:
+        translated = sorted([maps[c][selection[c]] for c in single_input])
+        while translated not in valid_digits:
+            # Oh, yes I did!
+            selection['a'] += 1
+            if selection['a'] == len(maps['a']):
+                selection['a'] = 0
+                selection['b'] += 1
+                if selection['b'] == len(maps['b']):
+                    selection['b'] = 0
+                    selection['c'] += 1
+                    if selection['c'] == len(maps['c']):
+                        selection['c'] = 0
+                        selection['d'] += 1
+                        if selection['d'] == len(maps['d']):
+                            selection['d'] = 0
+                            selection['e'] += 1
+                            if selection['e'] == len(maps['e']):
+                                selection['e'] = 0
+                                selection['f'] += 1
+                                if selection['f'] == len(maps['f']):
+                                    selection['f'] = 0
+                                    selection['g'] += 1
+        return selection
+
+
 def part2(signals, displays):
     for i in range(len(signals)):
         signal = sorted(signals[i], key=lambda x: len(x))
@@ -34,9 +61,16 @@ def part2(signals, displays):
         for l in [c for c in signal[3:6] if c not in taken_letters]:
             possible_maps[l] = [5, 7]
 
-        taken_pos = [1, 2, 3, 4, 5, 6, 7]
+        initial = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0}
 
-    pass
+        combination = brute_it(initial, possible_maps, signal)
+
+        codestr = ''
+        for d in display:
+            translated = sorted([possible_maps[c][combination[c]] for c in d])
+            codestr += f'{valid_digits.index(translated)}'
+
+        return int(codestr)
 
 
 def solve(part, useExample):

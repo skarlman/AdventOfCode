@@ -84,13 +84,24 @@ def solve(part, useExample):
     return lowest
 
 
+def avgsol():
+    filename = "input.txt"
 
-# print(solve(2, False))
+    numbers = []
+    with open(filename) as openfileobject:
+        for line in openfileobject:
+            if not numbers:
+                numbers = [int(x) for x in line.split(',')]
 
-print("Smart solution:")
-print(timeit.timeit("smart_solution()", globals=locals(), number=100))
-print("My solution:")
-print(timeit.timeit("solve(2, False)", globals=locals(), number=100))
+    return sum(numbers)/len(numbers)
+
+print(solve(2, False))
+
+
+# print("Smart solution:")
+# print(timeit.timeit("smart_solution()", globals=locals(), number=100))
+# print("My solution:")
+# print(timeit.timeit("solve(2, False)", globals=locals(), number=100))
 
 class AocTest(unittest.TestCase):
     def test_part_a_real(self):

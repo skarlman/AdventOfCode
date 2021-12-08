@@ -12,35 +12,44 @@ valid_digits[7] = [1, 3, 6]
 valid_digits[8] = [1, 2, 3, 4, 5, 6, 7]
 valid_digits[9] = [1, 2, 3, 4, 6, 7]
 
+possible_letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 
-def brute_it(selection, maps, input):
-    for single_input in input:
-        translated = sorted([maps[c][selection[c]] for c in single_input])
-        while translated not in valid_digits:
-            # Oh, yes I did!
-            selection['a'] += 1
-            if selection['a'] == len(maps['a']):
-                selection['a'] = 0
-                selection['b'] += 1
-                if selection['b'] == len(maps['b']):
-                    selection['b'] = 0
-                    selection['c'] += 1
-                    if selection['c'] == len(maps['c']):
-                        selection['c'] = 0
-                        selection['d'] += 1
-                        if selection['d'] == len(maps['d']):
-                            selection['d'] = 0
-                            selection['e'] += 1
-                            if selection['e'] == len(maps['e']):
-                                selection['e'] = 0
-                                selection['f'] += 1
-                                if selection['f'] == len(maps['f']):
-                                    selection['f'] = 0
-                                    selection['g'] += 1
-        return selection
+
+def list_is_in_list(item, l):
+    for i, v in l.items():
+        if v == item:
+            return True
+
+    return False
+
+
+def brute_it(maps, input_strings):
+    all_perms = [[a, b, c, d, e, f, g] for a in maps['a']
+                 for b in maps['b']
+                 for c in maps['c']
+                 for d in maps['d']
+                 for e in maps['e']
+                 for f in maps['f']
+                 for g in maps['g']
+                 ]
+
+    for perm in all_perms:
+        if not len(perm) == len(set(perm)):
+            continue
+
+        lookup = dict(zip(possible_letters, perm))
+        # check all inputs
+
+        if all([list_is_in_list(
+                sorted([lookup[c] for c in single_input]), valid_digits) for single_input in input_strings]):
+            return lookup
+
+    return None
 
 
 def part2(signals, displays):
+    total_sum = 0
+
     for i in range(len(signals)):
         signal = sorted(signals[i], key=lambda x: len(x))
         display = displays[i]
@@ -49,28 +58,27 @@ def part2(signals, displays):
         for l in signal[0]:
             possible_maps[l] = valid_digits[1]
 
-        letter = next(filter(lambda c: c not in signal[0], signal[1]))
-        possible_maps[letter] = [1]
+        the_one_letter = next(filter(lambda c: c not in signal[0], signal[1]))
+        possible_maps[the_one_letter] = [1]
 
         letters = list(filter(lambda c: c not in signal[0], signal[2]))
         for l in letters:
-            possible_maps[letter] = [2, 4]
+            possible_maps[l] = [2, 4, 5, 7]
 
-        taken_letters = possible_maps.keys()
+        for ss in signal[3:6]:
+            for c in ss:
+                if c not in possible_maps:
+                    possible_maps[c] = [2, 4, 5, 7]
 
-        for l in [c for c in signal[3:6] if c not in taken_letters]:
-            possible_maps[l] = [5, 7]
-
-        initial = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0}
-
-        combination = brute_it(initial, possible_maps, signal)
+        combination = brute_it(possible_maps, signal)
 
         codestr = ''
         for d in display:
-            translated = sorted([possible_maps[c][combination[c]] for c in d])
-            codestr += f'{valid_digits.index(translated)}'
+            translated = sorted([combination[c] for c in d])
+            codestr += f'{next(key for key, value in valid_digits.items() if value == translated)}'
 
-        return int(codestr)
+        total_sum += int(codestr)
+    return total_sum
 
 
 def solve(part, useExample):
@@ -95,18 +103,18 @@ def part1(displays):
     return cnt
 
 
-print(solve(1, False))
+print(solve(2, False))
 
 
 class AocTest(unittest.TestCase):
     def test_part_a_real(self):
-        self.assertEqual(4421, solve(1, False), "Part 1 REAL")
+        self.assertEqual(521, solve(1, False), "Part 1 REAL")
 
     def test_part_a_example(self):
-        self.assertEqual(5, solve(1, True), "Part 1 example")
+        self.assertEqual(26, solve(1, True), "Part 1 example")
 
     def test_part_b_real(self):
-        self.assertEqual(18674, solve(2, False), "Part 2 REAL")
+        self.assertEqual(1016804, solve(2, False), "Part 2 REAL")
 
     def test_part_b_example(self):
-        self.assertEqual(12, solve(2, True), "Part 2 example")
+        self.assertEqual(61229, solve(2, True), "Part 2 example")

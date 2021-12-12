@@ -7,6 +7,8 @@ def solve(part, useExample):
     # TODO put solution here
     with open(filename) as openfileobject:
         for line in openfileobject:
+            tline = line.strip()
+
             pass
 
     return None

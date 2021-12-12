@@ -1,5 +1,5 @@
 import unittest
-
+from collections import defaultdict, deque
 
 def solve(part, useExample):
     filename = "exampleinput.txt" if useExample else "input.txt"

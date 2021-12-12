@@ -1,11 +1,10 @@
 import unittest
 
-all_paths = dict()
 print()
 print('--- new run ---')
 print()
 
-def explore(found_paths, nog_go, twice_ok):
+def explore(found_paths, nog_go, twice_ok, all_paths):
     resuling_paths = []
 
     for current_path in found_paths:
@@ -21,13 +20,12 @@ def explore(found_paths, nog_go, twice_ok):
             if (previousCave, possible) in nog_go:
                 continue
 
-            if not twice_ok and ord(possible[0]) >= 97 and current_path.count(possible) >= 1:
-                continue
-
             next_twice_ok = twice_ok
-            if ord(possible[0]) >= 97 and current_path.count(possible) == 1:
+            if ord(possible[0]) >= 97 and current_path.count(possible) >= 1:
                 if twice_ok:
                     next_twice_ok = False
+                else:
+                    continue
 
 
 
@@ -42,7 +40,7 @@ def explore(found_paths, nog_go, twice_ok):
             else:
                 new_no_go.add((previousCave, possible))
 
-            new_found = explore([new_path], new_no_go, next_twice_ok)
+            new_found = explore([new_path], new_no_go, next_twice_ok, all_paths)
             resuling_paths.extend(new_found)
 
     return resuling_paths
@@ -50,6 +48,7 @@ def explore(found_paths, nog_go, twice_ok):
 
 def solve(part, useExample):
     filename = "exampleinput.txt" if useExample else "input.txt"
+    all_paths = dict()
 
     with open(filename) as openfileobject:
         for line in openfileobject:
@@ -71,7 +70,7 @@ def solve(part, useExample):
 
     no_go = set()
     no_go.add(('start', '-1'))
-    found_paths = explore([['start']], no_go, True)
+    found_paths = explore([['start']], no_go, part==2, all_paths)
 
 #    for p in found_paths:
 #        print("|".join(p))
@@ -79,18 +78,18 @@ def solve(part, useExample):
     return len(found_paths)
 
 
-print(solve(1, False))
+print(solve(2, True))
 
 
 class AocTest(unittest.TestCase):
     def test_part_a_real(self):
-        self.assertEqual(4421, solve(1, False), "Part 1 REAL")
+        self.assertEqual(3510, solve(1, False), "Part 1 REAL")
 
     def test_part_a_example(self):
-        self.assertEqual(5, solve(1, True), "Part 1 example")
+        self.assertEqual(10, solve(1, True), "Part 1 example")
 
     def test_part_b_real(self):
-        self.assertEqual(18674, solve(2, False), "Part 2 REAL")
+        self.assertEqual(122880, solve(2, False), "Part 2 REAL")
 
     def test_part_b_example(self):
-        self.assertEqual(12, solve(2, True), "Part 2 example")
+        self.assertEqual(36, solve(2, True), "Part 2 example")

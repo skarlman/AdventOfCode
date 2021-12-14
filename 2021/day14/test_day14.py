@@ -1,6 +1,5 @@
-import sys
 import unittest
-from collections import defaultdict, deque
+from collections import defaultdict
 
 
 def solve(part, useExample):
@@ -27,27 +26,24 @@ def solve(part, useExample):
         template[first_template[i:i + 2]] += 1
     counts[first_template[-1]] += 1
 
-    for steps in range(10):
-        print(f'step: {steps}')
-
-        remove_pairs =defaultdict(int)
+    for steps in range(40 if part == 2 else 10):
+        remove_pairs = defaultdict(int)
         new_pairs = defaultdict(int)
         for k, v in template.items():
             if v == 0:
                 continue
+
             new_letter = lookup[k]
             counts[new_letter] += v
-            new_pairs[k[0] + new_letter] += 1
-            new_pairs[new_letter + k[1]] += 1
+            new_pairs[k[0] + new_letter] += v
+            new_pairs[new_letter + k[1]] += v
             remove_pairs[k] += v
 
-        for k,v in new_pairs.items():
+        for k, v in new_pairs.items():
             template[k] += v
 
-        for k,v in remove_pairs.items():
+        for k, v in remove_pairs.items():
             template[k] -= v
-
-        print(counts)
 
     least = min(counts.values())
     largest = max(counts.values())
@@ -55,7 +51,8 @@ def solve(part, useExample):
     return largest - least
 
 
-print(solve(1, True))
+print(solve(1, False))
+print(solve(2, False))
 
 
 class AocTest(unittest.TestCase):

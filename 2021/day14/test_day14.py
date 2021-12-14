@@ -1,5 +1,5 @@
 import unittest
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 def solve(part, useExample):
@@ -18,37 +18,28 @@ def solve(part, useExample):
             else:
                 first_template = tline
 
-    template = defaultdict(int)
-
-    counts = defaultdict(int)
-    for i in range(len(first_template) - 1):
-        counts[first_template[i]] += 1
-        template[first_template[i:i + 2]] += 1
-    counts[first_template[-1]] += 1
+    counts = Counter(first_template)
+    template = Counter(["".join(x) for x in zip(first_template[:-1], first_template[1:])])
 
     for steps in range(40 if part == 2 else 10):
-        remove_pairs = defaultdict(int)
-        new_pairs = defaultdict(int)
+        updated_pairs = defaultdict(int)
         for k, v in template.items():
             if v == 0:
                 continue
 
             new_letter = lookup[k]
             counts[new_letter] += v
-            new_pairs[k[0] + new_letter] += v
-            new_pairs[new_letter + k[1]] += v
-            remove_pairs[k] += v
 
-        for k, v in new_pairs.items():
-            template[k] += v
+            updated_pairs[k] -= v
 
-        for k, v in remove_pairs.items():
-            template[k] -= v
+            updated_pairs[k[0] + new_letter] += v
+            updated_pairs[new_letter + k[1]] += v
 
-    least = min(counts.values())
-    largest = max(counts.values())
 
-    return largest - least
+        template.update(updated_pairs)
+
+    ordered = counts.most_common()
+    return ordered[0][1] - ordered[-1][1]
 
 
 print(solve(1, False))
@@ -57,13 +48,13 @@ print(solve(2, False))
 
 class AocTest(unittest.TestCase):
     def test_part_a_real(self):
-        self.assertEqual(4421, solve(1, False), "Part 1 REAL")
+        self.assertEqual(3048, solve(1, False), "Part 1 REAL")
 
     def test_part_a_example(self):
-        self.assertEqual(5, solve(1, True), "Part 1 example")
+        self.assertEqual(1588, solve(1, True), "Part 1 example")
 
     def test_part_b_real(self):
-        self.assertEqual(18674, solve(2, False), "Part 2 REAL")
+        self.assertEqual(3288891573057, solve(2, False), "Part 2 REAL")
 
     def test_part_b_example(self):
-        self.assertEqual(12, solve(2, True), "Part 2 example")
+        self.assertEqual(2188189693529, solve(2, True), "Part 2 example")

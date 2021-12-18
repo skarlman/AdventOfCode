@@ -9,8 +9,7 @@ class Node(object):
 
 
 
-def parenthetic_contents(string):
-    """Generate parenthesized contents in string as pairs (level, contents)."""
+def build_tree(string):
     stack = []
     contents = []
     for i, c in enumerate(string):
@@ -23,14 +22,12 @@ def parenthetic_contents(string):
     contents.sort(key=lambda x: x[0])
 
     tree = dict()
-    # depth, root_key, content = contents.pop()
-    # current_node = Node(root_key)
-    # tree[root_key] = current_node
+    _, root_key,_ = contents[0]
 
     while contents:
         depth, key, content = contents.pop()
-        start_i, key = key.split('|')
-
+        start_i, _ = key.split('|')
+        start_i = int(start_i)
         n1 = Node()
 
         if content[0].isnumeric():
@@ -39,6 +36,7 @@ def parenthetic_contents(string):
         if content[-1].isnumeric():
             n1.right = int(content.split(',')[-1])
 
+        midpoint = 0
         if n1.left == None:
             c = 1
             ptr = 1
@@ -47,12 +45,47 @@ def parenthetic_contents(string):
                     c+=1
                 elif content[ptr] == "]":
                     c-=1
-            left_key=f'{depth}|{content[0:ptr]}'
+                ptr +=1
+
+            left_key=f'{start_i+1}|{content[1:ptr-1]}'
             n1.left=tree[left_key]
+            midpoint = ptr
+
 
         if n1.right == None:
+            if midpoint == 0:
+                c = 1
+                ptr = 1
+                while c:
+                    if content[ptr] == '[':
+                        c += 1
+                    elif content[ptr] == "]":
+                        c -= 1
+                    ptr += 1
+                midpoint = ptr
+            right_key = f'{start_i+midpoint+2}|{content[midpoint + 2:-1]}'
 
-    print(contents)
+            n1.right = tree[right_key]
+
+        tree[key] = n1
+
+    return (tree, root_key)
+
+
+def print_tree(node):
+    if isinstance(node.left, int):
+        print(node.left)
+    else:
+        print_tree(node.left)
+
+    if isinstance(node.right, int):
+        print(node.right)
+    else:
+        print_tree(node.right)
+
+
+
+
 
 
 def solve(part, useExample):
@@ -68,7 +101,10 @@ def solve(part, useExample):
     # example = "[[[[[9,8],1],2],3],4]"
     example ="[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]"
 
-    parts = list(parenthetic_contents(example))
+    tree, root_key = build_tree(example)
+
+    print_tree(tree[root_key])
+
 
     return None
 

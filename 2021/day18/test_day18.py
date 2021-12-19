@@ -237,14 +237,13 @@ def calculate(root_node):
                 no_change = False
             else:
                 print('no explode')
-        has_split = True
-        while has_split:
-            has_split = split_node(root_node)
-            if has_split:
-                print(f'Split  : {print_tree(root_node)}')
-                no_change = False
-            else:
-                print("no explode")
+
+        has_split = split_node(root_node)
+        if has_split:
+            print(f'Split  : {print_tree(root_node)}')
+            no_change = False
+        else:
+            print("no explode")
     return root_node
 
 

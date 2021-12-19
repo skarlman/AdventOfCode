@@ -87,32 +87,61 @@ def push_down_ul(node, number):
         push_down_ul(node.right, number)
 
 
+def split_node(node):
+    has_split = False
+
+    if isinstance(node.left, int):
+        if node.left > 9:
+            new_node = Node()
+            new_node.left = node.left // 2
+            new_node.right = node.left - new_node.left
+            node.left = new_node
+            return True
+    else:
+        has_split = split_node(node.left)
+
+    if has_split:
+        return has_split
+
+    if isinstance(node.right, int):
+        if node.right > 9:
+            new_node = Node()
+            new_node.left = node.right // 2
+            new_node.right = node.right - new_node.left
+            node.right = new_node
+            return True
+    else:
+        has_split = split_node(node.right)
+
+    return has_split
+
+
 def explode(node, level):
     if level == 4:
         return node.left, node.right, False
 
-    ul,ur,has_updated = 0,0,False
+    ul, ur, has_updated = 0, 0, False
 
     if not isinstance(node.left, int):
 
         ul, ur, has_updated = explode(node.left, level + 1)
-        if ur != 0 and ul !=0 and has_updated==False:
+        if ur != 0 and ul != 0 and has_updated == False:
             node.left = 0
 
         if ur != 0:
             # push down right
             if isinstance(node.right, int):
                 node.right += ur
+                has_updated = True
             else:
                 push_down_ur(node.right, ur)
-            return ul, 0, ul == 0
+            return ul, 0, has_updated
 
         if ul != 0:
             return ul, 0, has_updated
 
     if has_updated:
         return 0, 0, True
-
 
     if not isinstance(node.right, int):
 
@@ -125,10 +154,11 @@ def explode(node, level):
             # push down left
             if isinstance(node.left, int):
                 node.left += ul
+                has_updated = True
             else:
                 push_down_ul(node.left, ul)
 
-            return 0, ur, ur == 0
+            return 0, ur, has_updated
 
     return 0, ur, has_updated
 
@@ -137,41 +167,72 @@ def solve(part, useExample):
     filename = "exampleinput.txt" if useExample else "input.txt"
 
     inputrows = []
-#    with open(filename) as openfileobject:
-#        for line in openfileobject:
-#            tline = line.strip()
-#            root_node = build_tree(tline)
-#            reconstructed = print_tree(root_node)
+    with open(filename) as openfileobject:
+        for line in openfileobject:
+            tline = line.strip()
+            root_node = build_tree(tline)
+            reconstructed = print_tree(root_node)
 
-#            if tline != reconstructed:
-#                print(" - !!! -- Not equal -- !!! -")
-#                print(tline)
-#                print(reconstructed)
-#                print("-----------------------------")
+            if tline != reconstructed:
+                print(" - !!! -- Not equal -- !!! -")
+                print(tline)
+                print(reconstructed)
+                print("-----------------------------")
+            inputrows.append(tline)
 
-    example = "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"
+    last_row = inputrows[0]
+    for row in inputrows[1:]:
+        newl = f'[{last_row},{row}]'
+        last_row = print_tree(calculate(build_tree(newl)))
+        print(f'* {last_row}')
+    print(last_row)
+
+#    example = "[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]"
     # example ="[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]"
     # example = "[[[[5,0],[7,4]],[5,5]],[6,6]]"
-    root_node = build_tree(example)
-    reconstructed = print_tree(root_node)
+ #   root_node = build_tree(example)
+ #   reconstructed = print_tree(root_node)
 
-    if example != reconstructed:
-        print(" - !!! -- Not equal -- !!! -")
-        print(example)
-        print(reconstructed)
-        print("-----------------------------")
+#    if example != reconstructed:
+#        print(" - !!! -- Not equal -- !!! -")
+#        print(example)
+#        print(reconstructed)
+#        print("-----------------------------")
 
-    ul,ur,has_updated = explode(root_node,0)
+    #    _, _, has_exploded = explode(root_node, 0)
+    #    print(f'example: {example}')
+    #    print(f'explode: {print_tree(root_node)}')
+    #    print(has_exploded)
+    #    return None
 
-    print(f'example: {example}')
-    print(f'explode: {print_tree(root_node)}')
+ #   new_result = print_tree(calculate(root_node))
 
-
+#    print(f'example: {example}')
+#    print(f'explode: {new_result}')
 
     return None
 
+def calculate(root_node):
+    no_change = False
+    while not no_change:
+        no_change = True
+        has_exploded = True
+        while has_exploded:
+            _, _, has_exploded = explode(root_node, 0)
+            if has_exploded:
+                print(f'Explode: {print_tree(root_node)}')
+                no_change = False
 
-print(solve(1, False))
+        has_split = True
+        while has_split:
+            has_split = split_node(root_node)
+            if has_split:
+                print(f'Split  : {print_tree(root_node)}')
+                no_change = False
+    return root_node
+
+
+print(solve(1, True))
 
 
 class AocTest(unittest.TestCase):

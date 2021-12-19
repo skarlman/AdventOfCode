@@ -133,43 +133,43 @@ def explode(node, level):
     if level == 4:
         return node.left, node.right, False
 
-    ul, ur, has_updated = 0, 0, False
+    ul, ur, has_updated = None, None, False
 
     if not isinstance(node.left, int):
 
         ul, ur, has_updated = explode(node.left, level + 1)
-        if ur != 0 and ul != 0 and has_updated == False:
+        if ur != None and ul != None and has_updated == False:
             node.left = 0
 
-        if ur != 0:
+        if ur != None:
             # push down right
             if isinstance(node.right, int):
                 node.right += ur
             else:
                 push_down_ur(node.right, ur)
-            return ul, 0, True
+            return ul, None, True
 
-        if ul != 0:
-            return ul, 0, has_updated
+        if ul != None:
+            return ul, None, has_updated
 
     if has_updated:
-        return ul, 0, True
+        return None, ur, True
 
     if not isinstance(node.right, int):
 
         ul, ur, has_updated = explode(node.right, level + 1)
 
-        if ur != 0 and ul != 0 and has_updated == False:
+        if ur != None and ul != None and has_updated == False:
             node.right = 0
 
-        if ul != 0:
+        if ul != None:
             # push down left
             if isinstance(node.left, int):
                 node.left += ul
             else:
                 push_down_ul(node.left, ul)
 
-            return 0, ur, True
+            return ul, ur, True
 
     return ul, ur, has_updated
 

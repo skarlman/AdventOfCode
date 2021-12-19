@@ -61,6 +61,19 @@ def build_tree(string):
 
             n1.right = tree[right_key]
 
+            #todo check that there are no more parts
+        expected_len = 1 #comma
+        if isinstance(n1.left, int):
+            expected_len += len(str(n1.left))
+        else:
+            expected_len += len(left_key.split('|')[1])+2
+
+        if isinstance(n1.right, int):
+            expected_len += len(str(n1.right))
+        else:
+            expected_len += len(right_key.split('|')[1])+2
+
+        assert(expected_len==len(content))
         tree[key] = n1
 
     return tree[root_key]
@@ -132,16 +145,15 @@ def explode(node, level):
             # push down right
             if isinstance(node.right, int):
                 node.right += ur
-                has_updated = True
             else:
                 push_down_ur(node.right, ur)
-            return ul, 0, has_updated
+            return ul, 0, True
 
         if ul != 0:
             return ul, 0, has_updated
 
     if has_updated:
-        return 0, 0, True
+        return ul, 0, True
 
     if not isinstance(node.right, int):
 
@@ -154,13 +166,12 @@ def explode(node, level):
             # push down left
             if isinstance(node.left, int):
                 node.left += ul
-                has_updated = True
             else:
                 push_down_ul(node.left, ul)
 
-            return 0, ur, has_updated
+            return 0, ur, True
 
-    return 0, ur, has_updated
+    return ul, ur, has_updated
 
 
 def solve(part, useExample):
@@ -183,11 +194,12 @@ def solve(part, useExample):
     last_row = inputrows[0]
     for row in inputrows[1:]:
         newl = f'[{last_row},{row}]'
+        print(f"NEWL: {newl}")
         last_row = print_tree(calculate(build_tree(newl)))
         print(f'* {last_row}')
     print(last_row)
 
-#    example = "[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]"
+    example = "[[[[[1,1],[2,2]],[3,3]],[4,4]],[5,5]]"
     # example ="[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]"
     # example = "[[[[5,0],[7,4]],[5,5]],[6,6]]"
  #   root_node = build_tree(example)
@@ -215,6 +227,7 @@ def solve(part, useExample):
 def calculate(root_node):
     no_change = False
     while not no_change:
+        print("no_change_loop")
         no_change = True
         has_exploded = True
         while has_exploded:
@@ -222,13 +235,16 @@ def calculate(root_node):
             if has_exploded:
                 print(f'Explode: {print_tree(root_node)}')
                 no_change = False
-
+            else:
+                print('no explode')
         has_split = True
         while has_split:
             has_split = split_node(root_node)
             if has_split:
                 print(f'Split  : {print_tree(root_node)}')
                 no_change = False
+            else:
+                print("no explode")
     return root_node
 
 

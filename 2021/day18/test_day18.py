@@ -169,9 +169,18 @@ def explode(node, level):
             else:
                 push_down_ul(node.left, ul)
 
-            return ul, ur, True
+            return None, ur, True
 
     return ul, ur, has_updated
+
+
+def get_magnitude(node):
+
+    leftsum = 3 * node.left if isinstance(node.left, int) else 3 * get_magnitude(node.left)
+    rightsum = 2 * node.right if isinstance(node.right, int) else 2 * get_magnitude(node.right)
+
+    return leftsum+rightsum
+
 
 
 def solve(part, useExample):
@@ -194,10 +203,26 @@ def solve(part, useExample):
     last_row = inputrows[0]
     for row in inputrows[1:]:
         newl = f'[{last_row},{row}]'
-        print(f"NEWL: {newl}")
+        #print(f"NEWL: {newl}")
         last_row = print_tree(calculate(build_tree(newl)))
-        print(f'* {last_row}')
-    print(last_row)
+        #print(f'* {last_row}')
+    #print(last_row)
+
+
+    print(f'Part 1: {get_magnitude(build_tree(last_row))}')
+
+    max_mag = 0
+    for i in range(len(inputrows)-1):
+        for j in range(i, len(inputrows)):
+            t1 = f'[{inputrows[i]},{inputrows[j]}]'
+            max_mag = max(max_mag, get_magnitude(calculate(build_tree(t1))))
+            t2 = f'[{inputrows[j]},{inputrows[i]}]'
+            max_mag = max(max_mag, get_magnitude(calculate(build_tree(t2))))
+
+    print(f'Part 2: {max_mag}')
+
+
+
 
     example = "[[[[[1,1],[2,2]],[3,3]],[4,4]],[5,5]]"
     # example ="[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]"
@@ -227,27 +252,27 @@ def solve(part, useExample):
 def calculate(root_node):
     no_change = False
     while not no_change:
-        print("no_change_loop")
+        #print("no_change_loop")
         no_change = True
         has_exploded = True
         while has_exploded:
             _, _, has_exploded = explode(root_node, 0)
             if has_exploded:
-                print(f'Explode: {print_tree(root_node)}')
+       #         print(f'Explode: {print_tree(root_node)}')
                 no_change = False
-            else:
-                print('no explode')
+       #     else:
+      #          print('no explode')
 
         has_split = split_node(root_node)
         if has_split:
-            print(f'Split  : {print_tree(root_node)}')
+     #       print(f'Split  : {print_tree(root_node)}')
             no_change = False
-        else:
-            print("no explode")
+        #else:
+    #        print("no explode")
     return root_node
 
 
-print(solve(1, True))
+print(solve(1, False))
 
 
 class AocTest(unittest.TestCase):

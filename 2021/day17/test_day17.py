@@ -21,7 +21,9 @@ def solve(part, useExample):
     a = 1
     b = 1
     c = -2 * target_x_min
-    min_x_velocity = int((-b + (b ** 2 - 4 * a * c) ** 0.5) / (2 * a))
+    #min_x_velocity = int((-b + (b ** 2 - 4 * a * c) ** 0.5) / (2 * a))
+    min_x_velocity = 1
+    #max_x_velocity = target_x_max
     max_x_velocity = target_x_max
 
     min_y_velocity = target_y_min

@@ -1,154 +1,128 @@
-import copy
-import unittest
-from collections import defaultdict, deque
 
 
 def solve(part, useExample):
     filename = "exampleinput.txt" if useExample else "input.txt"
 
-    score_part1 = 0
     with open(filename) as openfileobject:
-        # raw = openfileobject.read().strip()
         rows = [l.strip() for l in openfileobject.readlines()]
-
-    # cols = copy.deepcopy(rows)
 
     visible = set()
     total_rows = len(rows)
     total_cols = len(rows[0])
 
     for row in range(total_rows):
-        high_left = rows[row][0]
-        high_right = rows[row][-1]
-        for col in range(total_cols):
-            if col == 0:
-                visible.add((row, col))
-                visible.add((row, total_cols - col - 1))
-            else:
-                if rows[row][col] > high_left:
-                    visible.add((row, col))
-                    high_left = rows[row][col]
+        highest_from_left = rows[row][0]
+        highest_from_right = rows[row][-1]
+        for col_left in range(total_cols):
+            col_right = total_cols - col_left - 1
 
-                if rows[row][total_cols - col - 1] > high_right:
-                    visible.add((row, total_cols - col - 1))
-                    high_right = rows[row][total_cols - col - 1]
+            if col_left == 0:
+                visible.add((row, col_left))
+                visible.add((row, col_right))
+            else:
+                if rows[row][col_left] > highest_from_left:
+                    visible.add((row, col_left))
+                    highest_from_left = rows[row][col_left]
+
+                if rows[row][col_right] > highest_from_right:
+                    visible.add((row, col_right))
+                    highest_from_right = rows[row][col_right]
 
     for col in range(total_rows):
-        high_up = rows[0][col]
-        high_down = rows[-1][col]
-        for row in range(total_cols):
+        highest_from_top = rows[0][col]
+        highest_from_bottom = rows[-1][col]
 
-            if row == 0:
-                visible.add((row, col))
-                visible.add((total_rows - row - 1, col))
+        for row_top in range(total_rows):
+            row_bottom = total_rows - row_top - 1
+
+            if row_top == 0:
+                visible.add((row_top, col))
+                visible.add((row_bottom, col))
             else:
-                if rows[row][col] > high_up:
-                    visible.add((row, col))
-                    high_up = rows[row][col]
+                if rows[row_top][col] > highest_from_top:
+                    visible.add((row_top, col))
+                    highest_from_top = rows[row_top][col]
 
-                if rows[total_rows - row - 1][col] > high_down:
-                    visible.add((total_rows - row - 1, col))
-                    high_down = rows[total_rows - row - 1][col]
+                if rows[row_bottom][col] > highest_from_bottom:
+                    visible.add((row_bottom, col))
+                    highest_from_bottom = rows[row_bottom][col]
 
     max_seen = 0
     for row in range(total_rows):
         if row == 0 or row == total_rows-1:
             continue
 
-        for col in range(total_cols):
-            if col == 0 or col == total_cols -1:
+        for col_left in range(total_cols):
+            if col_left == 0 or col_left == total_cols -1:
                 continue
+
             multiplied = 1
             current_seen = 0
-            current_val = rows[row][col]
+            current_height = rows[row][col_left]
 
             # up
-            if row > 0:
-                for r in range(row):
-                    if rows[row - r - 1][col] < current_val:
-                        current_seen += 1
-                    else:
-                        multiplied *= (current_seen + 1)
-                        max_seen = max(max_seen, multiplied)
-                        current_seen = 0
-                        break
-                if (current_seen > 0):
-                    multiplied *= current_seen
+            for r in range(row):
+                if rows[row - r - 1][col_left] < current_height:
+                    current_seen += 1
+                else:
+                    multiplied *= (current_seen + 1)
                     max_seen = max(max_seen, multiplied)
                     current_seen = 0
-            else:
-                continue
+                    break
+
+            if current_seen > 0:
+                multiplied *= current_seen
+                max_seen = max(max_seen, multiplied)
+                current_seen = 0
+
 
             # down
-            if row < total_rows - 1:
-                for r in range(total_rows - row - 1):
-                    if rows[row + r + 1][col] < current_val:
-                        current_seen += 1
-                    else:
-                        multiplied *= (current_seen + 1)
-                        max_seen = max(max_seen, multiplied)
-                        current_seen = 0
-                        break
-
-                if (current_seen > 0):
-                    multiplied *= current_seen
+            for r in range(total_rows - row - 1):
+                if rows[row + r + 1][col_left] < current_height:
+                    current_seen += 1
+                else:
+                    multiplied *= (current_seen + 1)
                     max_seen = max(max_seen, multiplied)
                     current_seen = 0
+                    break
+
+            if current_seen > 0:
+                multiplied *= current_seen
+                max_seen = max(max_seen, multiplied)
+                current_seen = 0
 
             # left
-            if col > 0:
-                for c in range(col):
-                    if rows[row][col - c - 1] < current_val:
-                        current_seen += 1
-                    else:
-                        multiplied *= (current_seen + 1)
-                        max_seen = max(max_seen, multiplied)
-                        current_seen = 0
-                        break
-                if (current_seen > 0):
-                    multiplied *= current_seen
+            for c in range(col_left):
+                if rows[row][col_left - c - 1] < current_height:
+                    current_seen += 1
+                else:
+                    multiplied *= (current_seen + 1)
                     max_seen = max(max_seen, multiplied)
                     current_seen = 0
-            else:
-                continue
+                    break
+
+            if current_seen > 0:
+                multiplied *= current_seen
+                max_seen = max(max_seen, multiplied)
+                current_seen = 0
 
             # right
-            if col < total_cols - 1:
-                for c in range(total_cols - col - 1):
-                    if rows[row][col + c + 1] < current_val:
-                        current_seen += 1
-                    else:
-                        multiplied *= (current_seen + 1)
-                        max_seen = max(max_seen, multiplied)
-                        current_seen = 0
-                        break
-                if (current_seen > 0):
-                    multiplied *= current_seen
+            for c in range(total_cols - col_left - 1):
+                if rows[row][col_left + c + 1] < current_height:
+                    current_seen += 1
+                else:
+                    multiplied *= (current_seen + 1)
                     max_seen = max(max_seen, multiplied)
                     current_seen = 0
+                    break
 
-            # left
-
-            # right
+            if current_seen > 0:
+                multiplied *= current_seen
+                max_seen = max(max_seen, multiplied)
+                current_seen = 0
 
     return len(visible) if part == 1 else max_seen
 
 
-print(solve(2, useExample=False))
-# not 190
-# not 121
-
-
-#
-# class AocTest(unittest.TestCase):
-#     def test_part_a_real(self):
-#         self.assertEqual(4421, solve(1, False), "Part 1 REAL")
-#
-#     def test_part_a_example(self):
-#         self.assertEqual(5, solve(1, True), "Part 1 example")
-#
-#     def test_part_b_real(self):
-#         self.assertEqual(18674, solve(2, False), "Part 2 REAL")
-#
-#     def test_part_b_example(self):
-#         self.assertEqual(12, solve(2, True), "Part 2 example")
+print(f'Part 1: {solve(1, useExample=False)}')
+print(f'Part 2: {solve(2, useExample=False)}')

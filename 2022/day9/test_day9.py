@@ -78,13 +78,17 @@ def solve(part, useExample):
                 row_d = rope[knot_i-1][0] - rope[knot_i][0]
                 col_d = rope[knot_i-1][1] - rope[knot_i][1]
 
-                
+                if row_d != 0:
+                    row_d -= 1 if row_d > 0 else -1
 
-                # if abs(row_d) == 2 and abs(col_d) == 2:
-                rope[knot_i] = (rope[knot_i-1][0] - row_d//row_d, rope[knot_i-1][1] - col_d//col_d)
+                if col_d != 0:
+                    col_d -= 1 if col_d > 0 else -1
+
+
+                if row_d or col_d:
+                    rope[knot_i] = (rope[knot_i-1][0] - row_d, rope[knot_i-1][1] - col_d)
                 # else:
                 #     rope[knot_i] = (rope[knot_i - 1][0] - row_d, rope[knot_i - 1][1] - col_d)
-                pass
                 # elif abs(row_d) > 0 or abs(col_d) > 0:
                 #     rope[knot_i - 1] = (rope[knot_i][0] + row_d, rope[knot_i][1] + col_d)
 
@@ -99,7 +103,7 @@ def solve(part, useExample):
 
             tail_visits.add(rope[-1])
 
-            print_rope(rope)
+            # print_rope(rope)
 
 
     return len(tail_visits)
@@ -107,7 +111,7 @@ def solve(part, useExample):
 
 
 
-print(f'Part 1: {solve(1, True)}')
+print(f'Part 1: {solve(1, False)}')
 # print(f'Part 2: {solve(2, True)}')
 
 

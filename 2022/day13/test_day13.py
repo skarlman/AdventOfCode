@@ -1,44 +1,85 @@
 import json
-from collections import defaultdict, deque
+from functools import cmp_to_key
+
+
+def compare_one_index(first, second):
+    if type(first) is int and type(second) is int:
+        comparison_result = (first - second) // abs(first - second) if (first - second) != 0 else 0
+        # print(f'{first} VS {second} ==> {comparison_result}')
+        return comparison_result
+    elif type(first) is list and type(second) is list:
+        if len(first) == 0 and len(second) == 0:
+            # print(f'{first} VS {second} ==> -1  Both sides ran out of items')
+            return 0
+        elif len(first) == 0:
+            # print(f'{first} VS {second} ==> -1  Left side ran out of items')
+            return -1
+        elif len(second) == 0:
+            # print(f'{first} VS {second} ==> 1 Right side ran out of items')
+            return 1
+        else:
+            # print(f'{first} VS {second} ==> compare_each_index({first}, {second})')
+            return compare_each_index(first, second)
+    elif type(first) is int:
+        # print(f'{first} VS {second} ==> compare_one_index({[first]}, {second})')
+
+        return compare_one_index([first], second)
+    elif type(second) is int:
+        # print(f'{first} VS {second} ==> compare_one_index({first}, {[second]})')
+        return compare_one_index(first, [second])
+
+
+def compare_each_index(list1, list2):
+    for i in range(min(len(list1), len(list2))):
+        result = compare_one_index(list1[i], list2[i])
+
+        if result != 0:
+            return result
+
+    if len(list1) < len(list2):
+        # print("Left side ran out of items")
+        return -1
+    elif len(list1) == len(list2):
+        # print("Same amount of items")
+        return 0
+    else:
+        # print("Right side ran out of items")
+        return 1
 
 
 def solve(part, use_example):
     filename = "exampleinput.txt" if use_example else "input.txt"
 
-    score_part1 = 0
+    if part == 1:
+        score_part1 = 0
+        with open(filename) as openfileobject:
+            raw = openfileobject.read()
+
+        chunks = raw.split('\n\n')
+
+        for chunk_index in range(len(chunks)):
+            rows = [json.loads(r.strip()) for r in chunks[chunk_index].split()]
+
+            result = compare_each_index(rows[0], rows[1])
+            if result != 1:  # (-1 == left smaller, 0 == left and right equal, which is fine)
+                score_part1 += chunk_index + 1
+                # print(f"chunk {chunk_index + 1}: True  (score: {score_part1})")
+            # else:
+            # print(f"chunk {chunk_index + 1}: False  (score: {score_part1})")
+
+        return score_part1
+
     with open(filename) as openfileobject:
-        raw = openfileobject.read()
-        #lines = openfileobject.readlines()
+        packets = [json.loads(l.strip()) for l in openfileobject.readlines() if l != '\n']
 
-    chunks = raw.split('\n\n')
+    packets.append([[2]])
+    packets.append([[6]])
+    packets.sort(key=cmp_to_key(compare_each_index))
 
-#If both values are integers, the lower integer should come first.
-    # If the left integer is lower than the right integer, the inputs are in the right order.
-    # If the left integer is higher than the right integer, the inputs are not in the right order.
-    # Otherwise, the inputs are the same integer; continue checking the next part of the input.
+    decoder_key = (packets.index([[2]]) + 1) * (packets.index([[6]]) + 1)
 
-# If both values are lists, compare the first value of each list, then the second value, and so on.
-    # If the left list runs out of items first, the inputs are in the right order.
-    # If the right list runs out of items first, the inputs are not in the right order.
-    # If the lists are the same length and no comparison makes a decision about the order, continue checking the next part of the input.
-
-# If exactly one value is an integer, convert the integer to a list which contains that integer as its only value,
-    # then retry the comparison.
-    # For example, if comparing [0,0,0] and 2, convert the right value to [2] (a list containing 2);
-    # the result is then found by instead comparing [0,0,0] and [2].
+    return decoder_key
 
 
-    for chunk in chunks:
-        rows = [json.loads(r.strip()) for r in chunk.split()]
-
-
-        print()
-        print(rows[0])
-        print(rows[1])
-
-
-    return score_part1
-
-
-print(f'Part 1: {solve(1, True)}')
-# print(f'Part 2: {solve(2, False)}')
+print(f'Part 1: {solve(1, False)}')
+print(f'Part 2: {solve(2, False)}')

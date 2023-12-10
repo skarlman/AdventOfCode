@@ -137,10 +137,16 @@ def solve(part, use_example):
         #            print('L', end='')
         #    print()
 
+        path_set = set(path)
+
         is_on_border =False
         q = list(right_of_pipe)
         while q:
             c = q.pop()
+            if c in path_set:
+                if c in right_of_pipe:
+                    right_of_pipe.remove(c)
+                    continue
             if c[0] == 0 or c[0] == len(grid)-1:
                 is_on_border = True
                 continue
@@ -149,31 +155,36 @@ def solve(part, use_example):
                 continue
 
             coord = (c[0] - 1, c[1])
-            if not (coord in path or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 right_of_pipe.add(coord)
                 q.append(coord)
 
             coord = (c[0], c[1]+1)
-            if not (coord in path or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 right_of_pipe.add(coord)
                 q.append(coord)
 
             coord = (c[0]+1, c[1])
-            if not (coord in path or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 right_of_pipe.add(coord)
                 q.append(coord)
 
             coord = (c[0], c[1]-1)
-            if not (coord in path or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in right_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 right_of_pipe.add(coord)
                 q.append(coord)
 
         closed_right = len(right_of_pipe)
-
+        print(f"Right is on border: {is_on_border}")
         is_on_border =False
         q = list(left_of_pipe)
         while q:
             c = q.pop()
+            if c in path_set:
+                if c in left_of_pipe:
+                    left_of_pipe.remove(c)
+                    continue
+
             if c[0] < 1 or c[0] > len(grid)-2:
                 is_on_border = True
                 continue
@@ -182,26 +193,27 @@ def solve(part, use_example):
                 continue
 
             coord = (c[0] - 1, c[1])
-            if not (coord in path or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 left_of_pipe.add(coord)
                 q.append(coord)
 
             coord = (c[0], c[1]+1)
-            if not (coord in path or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 left_of_pipe.add(coord)
                 q.append(coord)
 
             coord = (c[0]+1, c[1])
-            if not (coord in path or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 left_of_pipe.add(coord)
                 q.append(coord)
 
             coord = (c[0], c[1]-1)
-            if not (coord in path or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
+            if not (coord in path_set or coord in left_of_pipe) and not (coord[0] < 1 or coord[0] > len(grid)-2) and not (coord[1] < 1 or coord[1] > len(grid[0])-2):
                 left_of_pipe.add(coord)
                 q.append(coord)
 
         closed_left = len(left_of_pipe)
+        print(f"Left is on border: {is_on_border}")
 
         print(f"Part 2 alt: Right: {closed_right}")
         print(f"Part 2 alt: Left: {closed_left}")
